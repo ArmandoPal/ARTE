@@ -1,0 +1,163 @@
+/* ============================================================
+   Fondo mosaico Semanal — style.css
+   ============================================================ */
+
+:root{
+  --filas: 7;
+  --gap: 4px;
+  /* El tamaño de cada foto se calcula solo para que las 7 filas
+     llenen siempre el 100% del alto de la pantalla, sin franjas
+     vacías arriba/abajo, sin importar el tamaño de la ventana. */
+  --tile: calc((100vh - (var(--filas) - 1) * var(--gap)) / var(--filas));
+
+  /* Marco tipo rollo fotográfico: franja negra con cuadraditos
+     blancos (perforaciones) arriba y abajo de cada foto. */
+  --marco-alto: 8px;
+  --hueco-ancho: 6px;
+  --hueco-espacio: 8px;
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  margin: 0;
+  height: 100%;
+  background: #0a0a0a;
+  overflow: hidden;
+}
+
+.fondo{
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--gap);
+}
+
+.fila{
+  display: flex;
+  gap: var(--gap);
+  width: max-content;
+  will-change: transform;
+  animation-name: desplazar;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.tile{
+  position: relative;
+  width: var(--tile);
+  height: var(--tile);
+  flex-shrink: 0;
+  background: #000;
+}
+
+/* Las fotos quedan un poco más chicas al medio, dejando libres las
+   franjas de arriba y abajo para las "perforaciones" del rollo. */
+.tile img{
+  position: absolute;
+  top: var(--marco-alto);
+  bottom: var(--marco-alto);
+  left: 0;
+  width: 100%;
+  height: calc(100% - (2 * var(--marco-alto)));
+  object-fit: cover;
+  display: block;
+}
+
+/* Franjas negras con cuadraditos blancos (perforaciones), una arriba
+   y otra abajo de cada foto — el efecto clásico de rollo fotográfico. */
+.tile::before,
+.tile::after{
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--marco-alto);
+  background-color: #000;
+  background-image: repeating-linear-gradient(
+    to right,
+    #fff 0,
+    #fff var(--hueco-ancho),
+    transparent var(--hueco-ancho),
+    transparent calc(var(--hueco-ancho) + var(--hueco-espacio))
+  );
+  background-position: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.tile::before{ top: 0; }
+.tile::after{ bottom: 0; }
+
+/* Versión en blanco y negro (siempre visible por defecto) */
+.tile .bw{
+  filter: grayscale(100%) contrast(1.05) brightness(0.85);
+}
+
+/* Versión a color (oculta hasta que se revela) */
+.tile .color{
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.tile.revelada .color{
+  opacity: 1;
+}
+
+.tile.revelada .bw{
+  filter: grayscale(100%) contrast(1.05) brightness(0.1);
+}
+
+@keyframes desplazar{
+  from{ transform: translateX(-50%); }
+  to{   transform: translateX(0%); }
+}
+
+.overlay{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  pointer-events: none;
+}
+
+/* Botón rojo centrado en pantalla: hace lo mismo que la tecla "B" */
+.boton-recuerdo{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.5);
+  background: radial-gradient(circle at 35% 30%, #ff5b52, #c0161b 70%);
+  box-shadow: 0 0 0 rgba(255, 0, 0, 0.5), 0 4px 18px rgba(0,0,0,0.6);
+  cursor: pointer;
+  z-index: 60;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  padding: 0;
+}
+
+.boton-recuerdo:hover{
+  box-shadow: 0 0 0 6px rgba(255, 0, 0, 0.15), 0 4px 18px rgba(0,0,0,0.6);
+}
+
+/* Animación al presionar: se achica un poco y suelta un "destello" en
+   forma de anillo. Se activa igual con clic o con la tecla "B" (la
+   clase la agrega el JS en ambos casos). */
+.boton-recuerdo.presionado{
+  transform: translate(-50%, -50%) scale(0.88);
+  animation: destello 0.4s ease-out;
+}
+
+@keyframes destello{
+  0%{
+    box-shadow: 0 0 0 0 rgba(255, 60, 50, 0.7), 0 4px 18px rgba(0,0,0,0.6);
+  }
+  100%{
+    box-shadow: 0 0 0 22px rgba(255, 60, 50, 0), 0 4px 18px rgba(0,0,0,0.6);
+  }
+}
