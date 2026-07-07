@@ -30,7 +30,10 @@ es reemplazado por un vídeo HTML5 reproduciéndose de forma independiente.
 ```bash
 # Python 3
 cd /ruta/al/proyecto
-python3 -m http.server 8080 o python -m http.server 8000
+python3 -m http.server 8080
+
+O si no tienes python3 pero si python
+python -m http.server 8000
 ```
 Abre: `http://localhost:8080`
 
